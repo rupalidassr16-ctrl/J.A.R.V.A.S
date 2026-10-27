@@ -1,0 +1,41 @@
+F.R.I.D.A.Y. Android APK build — tablet-only workflow
+=====================================================
+
+WHAT THIS PACKAGE DOES
+- Preserves the original multi-file F.R.I.D.A.Y. interface and JavaScript.
+- Uses Capacitor to package the website into an Android app.
+- Uses GitHub Actions as the cloud computer to compile a debug APK.
+- Does NOT change the app's visual design.
+- Does NOT include or expose AI API keys.
+
+BEFORE YOU START
+- You need a GitHub account and internet access.
+- Keep this repository private if you do not want to publish your project source.
+- Never upload API keys, passwords, .env files, or Cloudflare secret values.
+- The backend/worker.js is source code only; it is not deployed by this Android build.
+
+TABLET STEPS
+1. Download and extract FRIDAY_Android_Cloud_Build.zip on the Galaxy Tab A9+.
+2. Open github.com in the browser and sign in or create an account.
+3. Create a new repository. Suggested name: friday-android. Choose Private. Do not add a README, .gitignore, or license because this package already contains files.
+4. Upload the extracted CONTENTS of this folder to the repository root. The root must show package.json, capacitor.config.json, index.html, app.js, and the .github and scripts folders. Do not upload the outer FRIDAY_Android_Cloud_Build folder as one nested folder.
+5. If GitHub's mobile page hides upload controls, use the browser menu and enable Desktop site.
+6. Commit the files to the main branch.
+7. Open the repository's Actions tab. Select “Build F.R.I.D.A.Y. APK”. Press “Run workflow”, choose main, then run it. If the workflow is not listed, open the workflow file under .github/workflows and commit it to main.
+8. Wait for the run to finish. Green check = build passed; red X = build failed. Open the run and check the error log before trying again.
+9. In the successful run, find Artifacts and tap “friday-debug-apk” to download it. Extract the downloaded artifact ZIP to get app-debug.apk.
+10. Tap app-debug.apk to install. Android may ask you to allow installs from your browser or file manager. Only allow this for the file you just built from your own repository, then turn the permission off again if you prefer.
+
+IMPORTANT NOTES
+- This creates a debug APK for personal testing, not a Play Store release.
+- The APK has not been built or device-tested yet; a successful green workflow is the first verification.
+- Offline features should run locally, but test them after installation.
+- The AI backend is not configured by this workflow. The current backend may reject app-origin requests because its CORS allow-list was designed for the hosted website. Online AI needs a separate, deliberate backend configuration and testing.
+- Browser-based speech recognition may not work in Android WebView even if it worked in Chrome. Other voice features depend on device/browser support.
+- Data saved in the installed app is separate from data saved in your ship.page website/browser.
+- GitHub Actions provides cloud build minutes under its account limits; do not add payment details just to try this workflow. If prompted for billing, stop and ask a parent/guardian before proceeding.
+
+OFFICIAL REFERENCES
+Capacitor getting started: https://capacitorjs.com/docs/getting-started
+GitHub Actions artifacts: https://docs.github.com/actions/using-workflows/storing-workflow-data-as-artifacts
+GitHub Actions manual runs: https://docs.github.com/actions/managing-workflow-runs/manually-running-a-workflow

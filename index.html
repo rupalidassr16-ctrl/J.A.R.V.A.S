@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#040a10">
+  <meta name="description" content="F.R.I.D.A.Y. personal assistant">
+  <title>F.R.I.D.A.Y.</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <noscript><p class="noscript">F.R.I.D.A.Y. needs JavaScript. Turn it on in your browser settings and reload.</p></noscript>
+
+  <div class="hud">
+    <header class="top">
+      <div class="reactor" aria-hidden="true"></div>
+      <div class="brand">
+        <h1>F.R.I.D.A.Y.</h1>
+        <p id="subtitle">Personal assistant</p>
+      </div>
+      <div class="pills" aria-label="System status">
+        <span class="pill" id="pill-mode">Offline mode</span>
+        <span class="pill" id="pill-ai">Online AI: not set up</span>
+        <span class="pill" id="pill-net">Network: checking</span>
+        <span class="clock" id="clock" aria-hidden="true"></span>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-console" aria-controls="panel-console" aria-selected="true" data-tab="console">Console</button>
+      <button role="tab" id="tab-memory" aria-controls="panel-memory" aria-selected="false" data-tab="memory" tabindex="-1">Memory</button>
+      <button role="tab" id="tab-tasks" aria-controls="panel-tasks" aria-selected="false" data-tab="tasks" tabindex="-1">Tasks</button>
+      <button role="tab" id="tab-tools" aria-controls="panel-tools" aria-selected="false" data-tab="tools" tabindex="-1">Tools</button>
+      <button role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="false" data-tab="settings" tabindex="-1">Settings</button>
+    </nav>
+
+    <!-- CONSOLE -->
+    <section class="panel" id="panel-console" role="tabpanel" aria-labelledby="tab-console">
+      <div class="modebar">
+        <div class="seg" role="group" aria-label="Assistant mode">
+          <button type="button" id="mode-offline" aria-pressed="true">Offline commands</button>
+          <button type="button" id="mode-online" aria-pressed="false">Online AI</button>
+        </div>
+        <span class="sharing" id="sharing">Sharing with AI: nothing</span>
+      </div>
+      <div class="console">
+        <div id="log" role="log" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
+      </div>
+      <div class="chips" role="group" aria-label="Quick commands">
+        <button type="button" class="chip" data-cmd="help">help</button>
+        <button type="button" class="chip" data-cmd="status">status</button>
+        <button type="button" class="chip" data-cmd="show tasks">tasks</button>
+        <button type="button" class="chip" data-cmd="show notes">notes</button>
+        <button type="button" class="chip" data-cmd="clear">clear</button>
+      </div>
+      <form id="form" class="dock" autocomplete="off">
+        <label for="input" class="sr-only">Type a command or message</label>
+        <button type="button" id="mic" class="iconbtn" aria-label="Start voice input" aria-pressed="false">Mic</button>
+        <input id="input" name="command" type="text" maxlength="2000" placeholder="Type a command, or ask a question in Online AI mode" enterkeyhint="send" autocapitalize="sentences" spellcheck="false">
+        <button id="send" type="submit">Send</button>
+        <button id="cancel" type="button" class="danger" hidden>Cancel</button>
+      </form>
+    </section>
+
+    <!-- MEMORY -->
+    <section class="panel" id="panel-memory" role="tabpanel" aria-labelledby="tab-memory" hidden>
+      <div class="scroll">
+        <div class="row">
+          <label for="search" class="sr-only">Search memory and tasks</label>
+          <input id="search" type="search" placeholder="Search facts, notes, tasks and history" maxlength="100">
+        </div>
+
+        <details class="card" id="ctx-card">
+          <summary>Choose what the online AI can see</summary>
+          <p class="hint">Nothing is shared unless you tick it here. Ticked items are sent with your next online AI messages, and only while they stay ticked. Ticks reset when you reload.</p>
+          <label class="field" for="ctx-turns">Recent messages from this chat to include</label>
+          <select id="ctx-turns">
+            <option value="0">None</option>
+            <option value="2" selected>Last 2 exchanges</option>
+            <option value="4">Last 4 exchanges</option>
+            <option value="6">Last 6 exchanges</option>
+          </select>
+          <div id="ctx-list"></div>
+          <button type="button" id="ctx-clear" class="secondary">Untick everything</button>
+        </details>
+
+        <section class="card" aria-labelledby="h-facts">
+          <h2 id="h-facts">Saved facts</h2>
+          <form class="row" id="fact-form">
+            <label for="fact-input" class="sr-only">New fact</label>
+            <input id="fact-input" type="text" maxlength="500" placeholder="A fact to remember, e.g. I prefer metric units">
+            <button type="submit">Save fact</button>
+          </form>
+          <ul class="items" id="facts-list"></ul>
+        </section>
+
+        <section class="card" aria-labelledby="h-notes">
+          <h2 id="h-notes">Notes</h2>
+          <form class="row" id="note-form">
+            <label for="note-input" class="sr-only">New note</label>
+            <input id="note-input" type="text" maxlength="2000" placeholder="A note to keep">
+            <button type="submit">Save note</button>
+          </form>
+          <ul class="items" id="notes-list"></ul>
+        </section>
+
+        <section class="card" aria-labelledby="h-sum">
+          <h2 id="h-sum">Conversation summaries</h2>
+          <ul class="items" id="sum-list"></ul>
+        </section>
+
+        <section class="card" aria-labelledby="h-hist">
+          <h2 id="h-hist">Conversation history</h2>
+          <div class="row">
+            <button type="button" id="hist-clear" class="danger">Clear conversation history</button>
+          </div>
+          <ul class="items" id="hist-list"></ul>
+          <h3>Recent commands</h3>
+          <ul class="items" id="cmd-list"></ul>
+        </section>
+      </div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="panel" id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+      <div class="scroll">
+        <section class="card" aria-labelledby="h-tasks">
+          <h2 id="h-tasks">Task queue</h2>
+          <label for="search-tasks" class="sr-only">Search tasks</label>
+          <input id="search-tasks" type="search" placeholder="Search tasks" maxlength="100">
+          <form class="row" id="task-form">
+            <label for="task-input" class="sr-only">New task</label>
+            <input id="task-input" type="text" maxlength="500" placeholder="Add a task">
+            <button type="submit">Add task</button>
+          </form>
+          <div class="seg" role="group" aria-label="Filter tasks">
+            <button type="button" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" data-filter="open" aria-pressed="false">Open</button>
+            <button type="button" data-filter="done" aria-pressed="false">Done</button>
+          </div>
+          <ul class="items" id="tasks-list"></ul>
+          <div class="row"><button type="button" id="tasks-clear" class="secondary">Clear completed tasks</button></div>
+        </section>
+        <section class="card" aria-labelledby="h-rem">
+          <h2 id="h-rem">Reminders</h2>
+          <p class="hint">Reminders only fire while this page is open in your browser. They cannot wake your tablet or run in the background.</p>
+          <ul class="items" id="rem-list"></ul>
+        </section>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="panel" id="panel-tools" role="tabpanel" aria-labelledby="tab-tools" hidden>
+      <div class="scroll" id="tools-root"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <div class="scroll">
+        <section class="card" aria-labelledby="h-pers">
+          <h2 id="h-pers">Personalization</h2>
+          <label class="field" for="set-name">Assistant name (shown in the log)</label>
+          <input id="set-name" type="text" maxlength="30">
+          <label class="field" for="set-style">Response style</label>
+          <select id="set-style">
+            <option value="adaptive">Adaptive</option>
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+          </select>
+          <p class="field" id="accent-label">Interface accent</p>
+          <div class="swatches" id="swatches" role="group" aria-labelledby="accent-label"></div>
+          <label class="field" for="set-size">Text size</label>
+          <select id="set-size">
+            <option value="small">Small</option>
+            <option value="normal">Normal</option>
+            <option value="large">Large</option>
+          </select>
+        </section>
+
+        <section class="card" aria-labelledby="h-voice">
+          <h2 id="h-voice">Voice</h2>
+          <label class="check"><input type="checkbox" id="set-voice"> Speak responses aloud</label>
+          <p class="hint" id="voice-support"></p>
+          <p class="hint">The microphone button is separate: it only listens while you hold a turn. In many browsers, voice recognition sends your audio to the browser maker's online service.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-memset">
+          <h2 id="h-memset">Memory settings</h2>
+          <label class="check"><input type="checkbox" id="set-confirm"> Ask before saving facts</label>
+          <label class="check"><input type="checkbox" id="set-hist"> Keep conversation history on this device</label>
+          <p class="hint">Passwords, tokens, API keys and card numbers are never saved, regardless of these settings.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-ai">
+          <h2 id="h-ai">Online AI connection</h2>
+          <p class="hint" id="ai-state">Not set up.</p>
+          <label class="field" for="set-url">Backend URL (from your Cloudflare Worker, not secret)</label>
+          <input id="set-url" type="url" maxlength="200" placeholder="https://friday-backend.your-name.workers.dev" inputmode="url" autocapitalize="off">
+          <div class="row">
+            <button type="button" id="ai-save">Save and test connection</button>
+          </div>
+          <p class="hint">Never type an API key here. Keys go only in your backend provider's secure settings.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-backup">
+          <h2 id="h-backup">Backup and recovery</h2>
+          <div class="row wrap">
+            <button type="button" id="bk-export">Download backup (JSON)</button>
+            <button type="button" id="bk-import" class="secondary">Import backup</button>
+            <button type="button" id="bk-restore" class="secondary">Restore data from before last import</button>
+          </div>
+          <input type="file" id="bk-file" accept=".json,application/json" hidden>
+          <p class="hint" id="bk-note"></p>
+        </section>
+
+        <section class="card" aria-labelledby="h-priv">
+          <h2 id="h-priv">Privacy</h2>
+          <ul class="plain">
+            <li><strong>Stored on this device only:</strong> your notes, facts, tasks, reminders, summaries, conversation history, settings and the Backend URL. They live in this browser's local storage for this website. Clearing your browser data, or using a private tab, removes them.</li>
+            <li><strong>Backup:</strong> use Download backup above and keep the file somewhere safe. The app has no cloud sync.</li>
+            <li><strong>Offline mode:</strong> nothing leaves your device, except optional weather lookups (city name sent to Open-Meteo) and browser voice recognition.</li>
+            <li><strong>Online AI mode:</strong> each message you send, plus any recent messages and items you ticked under Memory, goes to your backend and then to the AI provider you configured. Your whole memory is never sent automatically.</li>
+            <li><strong>Provider retention:</strong> the AI provider may keep or log requests under its own policy. Deleting your history here does not delete anything held by the provider; check its privacy settings.</li>
+            <li><strong>Not stored:</strong> passwords, tokens, API keys and card numbers are refused.</li>
+          </ul>
+        </section>
+
+        <section class="card" aria-labelledby="h-danger">
+          <h2 id="h-danger">Erase</h2>
+          <button type="button" id="erase-all" class="danger">Erase all F.R.I.D.A.Y. data on this device</button>
+        </section>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="storage.js"></script>
+  <script src="tools.js"></script>
+  <script src="voice.js"></script>
+  <script src="ai.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

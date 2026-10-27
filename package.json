@@ -1,0 +1,16 @@
+{
+  "name": "friday-assistant-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "F.R.I.D.A.Y. web app packaged for Android with Capacitor",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/android": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
